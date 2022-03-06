@@ -93,7 +93,7 @@ minecraft {
 	if (project.hasProperty("signSHA1")) {
 		replace '@FINGERPRINT@', project.findProperty('signSHA1')
 	}
-	useDepAts = true
+	useDepAts = false
 	serverJvmArgs += "-Dfml.doNotBackup=true"
 	serverJvmArgs += "-Dfml.queryResult=confirm"
 	clientJvmArgs += "-Dfml.doNotBackup=true"
