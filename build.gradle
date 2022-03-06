@@ -11,10 +11,378 @@ buildscript {
 	}
 }
 
-apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/base.gradle'
-apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/ae2wtlib.gradle'
-apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/enderio.gradle'
-apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/demagnetize.gradle'
-apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/ic2.gradle'
-apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/itemscroller.gradle'
+apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'maven'
+apply plugin: 'java'
+
+repositories {
+	jcenter()
+	maven {
+		name = "covers Maven"
+		url = "http://maven.covers1624.net"
+	}
+	maven {
+		name = "cursemaven"
+		url "https://www.cursemaven.com"
+	}
+	maven {
+		name = "Jared"
+        url 'http://maven.blamejared.com'
+    }
+	maven {
+		name = "progwml6"
+		url = "https://dvs1.progwml6.com/files/maven"
+	}
+	maven {
+		name = "tterrag"
+		url = "https://maven.tterrag.com"
+	}
+	maven {
+		name = "tterrag2"
+		url = "https://maven2.tterrag.com"
+	}
+	maven {
+		name = "ProfMobius"
+		url = "http://mobiusstrip.eu/maven"
+	}
+	maven {
+		name = "tehnut"
+		url = "https://tehnut.info/maven"
+	}
+	maven {
+		name = "ChickenBones"
+		url = "http://chickenbones.net/maven"
+	}
+	maven {
+		name = "k-4unl"
+		url "https://maven.k-4u.nl"
+	}
+	maven {
+		name = "LatvianModder"
+		url = "https://maven.latmod.com"
+	}
+	maven {
+		name = "Buildcraft"
+		url = 'https://mod-buildcraft.com/maven'
+	}
+	maven {
+		name = "mmd"
+		url = "http://maven.mcmoddev.com"
+	}
+	/*maven {
+		name = "elytradev"
+		url = "https://repo.elytradev.com"
+	}*/
+	maven {
+		name = "ModMaven"
+		url = "https://modmaven.k-4u.nl"
+	}
+}
+
+
+sourceCompatibility = targetCompatibility = "1.8"
+
+version = "1.12.2-" + getVersion()
+group = getGroup()
+archivesBaseName = getArchiveName()
+
+minecraft {
+    version = "1.12.2-14.23.5.2847"
+	mappings = "snapshot_20171003"
+	runDir = "run"
+	if (project.hasProperty("signSHA1")) {
+		replace '@FINGERPRINT@', project.findProperty('signSHA1')
+	}
+	useDepAts = false
+	serverJvmArgs += "-Dfml.doNotBackup=true"
+	serverJvmArgs += "-Dfml.queryResult=confirm"
+	clientJvmArgs += "-Dfml.doNotBackup=true"
+}
+
+configurations.all {
+    transitive = false
+}
+
+dependencies {
+	compile "mezz.jei:jei_1.12.2:4.16.1.302"
+	if (!project.hasProperty("excludePwLib")) {
+		deobfCompile "curse.maven:p455w0rds-library-255232:2830265"
+	}
+	deobfCompile "mcjty.theoneprobe:TheOneProbe-1.12:1.12-1.4.23-16"
+	deobfCompile "curse.maven:hwyla-253449:2568751"
+
+	deobfCompile "info.loenwind.autoconfig:AutoConfig:1.12.2-1.0.1"
+	deobfCompile "info.loenwind.autosave:AutoSave:1.12.2-1.0.8"
+	deobfCompile "curse.maven:endercore-231868:2972849"
+	deobfCompile ("curse.maven:ender-io-64578:3328811") {
+		transitive = false
+	}
+	deobfCompile "curse.maven:industrial-craft-242638:3078605"
+    deobfCompile "curse.maven:redstone-flux-270789:2920436"
+    deobfCompile "curse.maven:baubles-227083:2518667"
+    deobfCompile "curse.maven:applied-energistics-2-223794:2747063"
+	deobfCompile "curse.maven:ae2wtlib-304024:2830114"
+	deobfCompile "curse.maven:demagnetize-301356:3091010"
+	deobfCompile "curse.maven:item-scroller-242064:2581199"
+	
+}
+
+
+
+task signJar(type: SignJar, dependsOn: reobfJar) {
+	onlyIf {
+		project.hasProperty('keyStore')
+	}
+	if (project.hasProperty("keyStore")) {
+		keyStore = project.keyStore
+		alias = project.keyStoreAlias
+		storePass = project.keyStorePass
+		keyPass = project.keyStoreKeyPass
+		inputFile = jar.archivePath
+		outputFile = jar.archivePath
+	}
+}
+
+build.dependsOn signJar
+
+task sourcesJar(type: Jar) {
+	from sourceSets.main.allJava
+	classifier = 'sources'
+}
+
+task deobfJar(type: Jar) {
+	from sourceSets.main.output
+	classifier = 'deobf'
+	manifest {
+		if (project.hasProperty("fmlPlugin")) {
+			if (file("./src/main/resources/" + getModId() + "_at.cfg").exists()) {
+				manifest.mainAttributes(
+					"Created-By": "${System.getProperty('java.vm.version')} + (${System.getProperty('java.vm.vendor')})",
+					"Implementation-Title": getModId(),
+					"Implementation-Version": getVersion(),
+					"Built-On": getVersion(),
+					"FMLCorePlugin": project.fmlPlugin,
+					"FMLCorePluginContainsFMLMod": "true",
+					"FMLAT": getModId() + "_at.cfg"
+				)
+			}
+			else {
+				manifest.mainAttributes(
+					"Created-By": "${System.getProperty('java.vm.version')} + (${System.getProperty('java.vm.vendor')})",
+					"Implementation-Title": getModId(),
+					"Implementation-Version": getVersion(),
+					"Built-On": getVersion(),
+					"FMLCorePlugin": project.fmlPlugin,
+					"FMLCorePluginContainsFMLMod": "true"
+				)
+			}
+		}
+		else if (file("./src/main/resources/" + getModId() + "_at.cfg").exists()) {
+			attributes 'FMLAT': getModId() + "_at.cfg"
+		}
+	}
+}
+
+task apiJar(type: Jar) {
+	classifier = 'api'
+	from sourceSets.main.output
+	from sourceSets.main.allJava
+	from sourceSets.api.java
+	include "p455w0rd/" + getModId() + "/api/**"
+	from sourceSets.api.output
+	include "p455w0rd/" + getModId() + "/api/**"
+}
+
+task repairTextures(type: Copy) {
+	from "src/main/resources/assets/" + getModId() + "/textures"
+	into "build/resources/main/assets/" + getModId() + "/textures"
+}
+
+processResources.finalizedBy repairTextures
+
+artifacts {
+	archives sourcesJar
+	archives deobfJar
+	if (project.hasProperty("buildAPIJar")) {
+		archives apiJar
+	}
+}
+
+processResources {
+	inputs.property "version", project.version
+	inputs.property "mcversion", project.minecraft.version
+	filter { String line -> line.replace('@MODNAME@', getModName()) }
+	from(sourceSets.main.resources.srcDirs) {
+		include "mcmod.info"
+		expand "version": project.version, "mcversion": project.minecraft.version
+	}
+	from(sourceSets.main.resources.srcDirs) {
+		exclude "mcmod.info"
+	}
+	rename '(.+_at.cfg)', 'META-INF/$1'
+}
+
+jar {
+	manifest {
+		if (project.hasProperty("fmlPlugin")) {
+			if (file("./src/main/resources/" + getModId() + "_at.cfg").exists()) {
+				manifest.mainAttributes(
+					"Created-By": "${System.getProperty('java.vm.version')} + (${System.getProperty('java.vm.vendor')})",
+					"Implementation-Title": getModId(),
+					"Implementation-Version": getVersion(),
+					"Built-On": getVersion(),
+					"FMLCorePlugin": project.fmlPlugin,
+					"FMLCorePluginContainsFMLMod": "true",
+					"FMLAT": getModId() + "_at.cfg"
+				)
+			}
+			else {
+				manifest.mainAttributes(
+					"Created-By": "${System.getProperty('java.vm.version')} + (${System.getProperty('java.vm.vendor')})",
+					"Implementation-Title": getModId(),
+					"Implementation-Version": getVersion(),
+					"Built-On": getVersion(),
+					"FMLCorePlugin": project.fmlPlugin,
+					"FMLCorePluginContainsFMLMod": "true"
+				)
+			}
+		}
+		else if (file("./src/main/resources/" + getModId() + "_at.cfg").exists()) {
+			attributes 'FMLAT': getModId() + "_at.cfg"
+		}
+	}
+}
+
+uploadArchives {
+	repositories {
+		mavenDeployer {
+			if (project.hasProperty("gitSlug") && (project.hasProperty("local_maven") || (project.hasProperty("maven_user") && project.hasProperty("maven_pass")))) {
+				if (project.hasProperty("maven_pass")) {
+					repository(url: "http://maven_upload.covers1624.net/") {
+						authentication(userName: project.getProperty("maven_user"), password: project.getProperty("maven_pass"))
+					}
+				} else {
+					repository(url: "file://${local_maven}/.m2/repository")
+				}
+				pom {
+					groupId = getArtifactGroup()
+					// Force the maven upload to use the <mcversion>-<version> syntax preferred at files
+					artifactId = project.archivesBaseName
+					project {
+						name project.archivesBaseName
+						packaging 'jar'
+						description project.archivesBaseName
+						url 'https://github.com/' + project.getProperty("gitSlug")
+
+						scm {
+							url 'https://github.com/' + project.getProperty("gitSlug")
+							connection 'scm:git:git://github.com/' + project.getProperty("gitSlug") + '.git'
+							developerConnection 'scm:git:git@github.com:' + project.getProperty("gitSlug") + '.git'
+						}
+
+						issueManagement {
+							system 'github'
+							url 'https://github.com/' + project.getProperty("gitSlug") + '/issues'
+						}
+
+						licenses {
+							license {
+								name 'MIT'
+								url 'https://opensource.org/licenses/MIT'
+								distribution 'repo'
+							}
+						}
+
+						developers {
+							developer {
+								id 'TheRealp455w0rd'
+								name 'Mike Balser'
+								roles { role 'developer' }
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+uploadArchives.dependsOn signJar
+
+String getArtifactGroup() {
+	if (project.hasProperty("artifactGroup")) {
+		return project.getProperty("artifactGroup");
+	}
+	return getGroup();
+}
+
+String getGroup() {
+	if (project.hasProperty("jarGroup")) {
+		return project.getProperty("jarGroup");
+	}
+	return "p455w0rd." + getModId();
+}
+
+String getVersion() {
+	String major = "1";
+	String revision = "0";
+	String patch = "0";
+	if (project.hasProperty("modPropertiesJavaFile")) {
+		String prefix = "public static final String VERSION = \"";
+		File file = file(project.modPropertiesJavaFile)
+		file.eachLine { String s ->
+			s = s.trim();
+			if (s.startsWith(prefix)) {
+				s = s.substring(prefix.length(), s.length() - 2);
+				String[] pts = s.split("\\.");
+
+				major = pts[0];
+				revision = pts[1];
+				patch = pts[2];
+			}
+		}
+	}
+	return "$major.$revision.$patch";
+}
+
+String getModId() {
+	String modid = "mymod";
+	if (project.hasProperty("modPropertiesJavaFile")) {
+		String prefix = "public static final String MODID = \"";
+		File file = file(project.modPropertiesJavaFile)
+		file.eachLine { String s ->
+			s = s.trim();
+			if (s.startsWith(prefix)) {
+				s = s.substring(prefix.length(), s.length() - 2);
+				modid = s;
+			}
+		}
+	}
+	return "$modid";
+}
+
+String getModName() {
+	String modname = "MyMod";
+	if (project.hasProperty("modPropertiesJavaFile")) {
+		String prefix = "public static final String NAME = \"";
+		File file = file(project.modPropertiesJavaFile)
+		file.eachLine { String s ->
+			s = s.trim();
+			if (s.startsWith(prefix)) {
+				s = s.substring(prefix.length(), s.length() - 2);
+				modname = s;
+			}
+		}
+	}
+	return "$modname";
+}
+
+String getArchiveName() {
+	if (project.hasProperty("archiveBase")) {
+		return project.archiveBase;
+	}
+	return getModName();
+}
+
+
 
