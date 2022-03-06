@@ -1,17 +1,17 @@
 buildscript {
 	repositories {
 		jcenter()
-		maven {
-			name = "forge"
-			url = "http://files.minecraftforge.net/maven"
-		}
+		maven { url = "http://files.minecraftforge.net/maven" }
+		maven { url = "https://plugins.gradle.org/m2/" }
 	}
 	dependencies {
 		classpath "net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT"
+		classpath "com.wynprice.cursemaven:CurseMaven:2.1.4"
 	}
 }
 
 apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: "com.wynprice.cursemaven"
 apply plugin: 'maven'
 apply plugin: 'java'
 
@@ -93,7 +93,7 @@ minecraft {
 	if (project.hasProperty("signSHA1")) {
 		replace '@FINGERPRINT@', project.findProperty('signSHA1')
 	}
-	useDepAts = false
+	useDepAts = true
 	serverJvmArgs += "-Dfml.doNotBackup=true"
 	serverJvmArgs += "-Dfml.queryResult=confirm"
 	clientJvmArgs += "-Dfml.doNotBackup=true"
@@ -104,26 +104,26 @@ configurations.all {
 }
 
 dependencies {
-	compile "mezz.jei:jei_1.12.2:4.16.1.302"
+	compileOnly "mezz.jei:jei_1.12.2:4.16.1.302"
 	if (!project.hasProperty("excludePwLib")) {
 		deobfCompile "curse.maven:p455w0rds-library-255232:2830265"
 	}
-	deobfCompile "mcjty.theoneprobe:TheOneProbe-1.12:1.12-1.4.23-16"
-	deobfCompile "curse.maven:hwyla-253449:2568751"
+	compileOnly "mcjty.theoneprobe:TheOneProbe-1.12:1.12-1.4.23-16"
+	compileOnly "curse.maven:hwyla-253449:2568751"
 
-	deobfCompile "info.loenwind.autoconfig:AutoConfig:1.12.2-1.0.1"
-	deobfCompile "info.loenwind.autosave:AutoSave:1.12.2-1.0.8"
-	deobfCompile "curse.maven:endercore-231868:2972849"
-	deobfCompile ("curse.maven:ender-io-64578:3328811") {
+	compileOnly "info.loenwind.autoconfig:AutoConfig:1.12.2-1.0.1"
+	compileOnly "info.loenwind.autosave:AutoSave:1.12.2-1.0.8"
+	compileOnly "curse.maven:endercore-231868:2972849"
+	compileOnly ("curse.maven:ender-io-64578:3328811") {
 		transitive = false
 	}
-	deobfCompile "curse.maven:industrial-craft-242638:3078605"
-    deobfCompile "curse.maven:redstone-flux-270789:2920436"
-    deobfCompile "curse.maven:baubles-227083:2518667"
+	compileOnly "curse.maven:industrial-craft-242638:3078604"
+    compileOnly "curse.maven:redstone-flux-270789:2920436"
+    compileOnly "curse.maven:baubles-227083:2518667"
     deobfCompile "curse.maven:applied-energistics-2-223794:2747063"
 	deobfCompile "curse.maven:ae2wtlib-304024:2830114"
-	deobfCompile "curse.maven:demagnetize-301356:3091010"
-	deobfCompile "curse.maven:item-scroller-242064:2581199"
+	compileOnly "curse.maven:demagnetize-301356:3091010"
+	compileOnly "curse.maven:item-scroller-242064:2581199"
 	
 }
 
