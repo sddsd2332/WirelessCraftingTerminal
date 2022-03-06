@@ -106,7 +106,7 @@ configurations.all {
 dependencies {
 	compileOnly "mezz.jei:jei_1.12.2:4.16.1.302"
 	if (!project.hasProperty("excludePwLib")) {
-		deobfCompile "curse.maven:p455w0rds-library-255232:2830265"
+		compileOnly "curse.maven:p455w0rds-library-255232:2830265"
 	}
 	compileOnly "mcjty.theoneprobe:TheOneProbe-1.12:1.12-1.4.23-16"
 	compileOnly "curse.maven:hwyla-253449:2568751"
@@ -118,10 +118,10 @@ dependencies {
 		transitive = false
 	}
 	compileOnly "curse.maven:industrial-craft-242638:3078604"
-    compileOnly "curse.maven:redstone-flux-270789:2920436"
-    compileOnly "curse.maven:baubles-227083:2518667"
-    deobfCompile "curse.maven:applied-energistics-2-223794:2747063"
-	deobfCompile "curse.maven:ae2wtlib-304024:2830114"
+        compileOnly "curse.maven:redstone-flux-270789:2920436"
+        compileOnly "curse.maven:baubles-227083:2518667"
+        deobfCompile "curse.maven:applied-energistics-2-223794:2747063"
+	compileOnly "curse.maven:ae2wtlib-304024:2830114"
 	compileOnly "curse.maven:demagnetize-301356:3091010"
 	compileOnly "curse.maven:item-scroller-242064:2581199"
 	
